@@ -41,6 +41,8 @@ let scale = 1;
 
 let activeTool:undefined|string;
 
+let lastPencilPos:Vector2|undefined;
+
 if (ctx == null)
     throw new Error("CTX is not defined");
 
@@ -63,11 +65,15 @@ window.addEventListener('resize', resize)
 canvas.onmousedown = (e) => {
     buttonsDown[e.button] = true;
     e.preventDefault();
+
+    toolStart(mouseToWorldCoords(e.clientX, e.clientY));
 }
 
 canvas.onmouseup = (e) => {
     buttonsDown[e.button] = false;
     e.preventDefault();
+
+    toolEnd(mouseToWorldCoords(e.clientX, e.clientY));
 }
 
 window.onmouseout = (e) => {
@@ -89,6 +95,12 @@ canvas.onmousemove = (e) => {
     let delta:Vector2 = mouseToWorldCoords(e.movementX, e.movementY);
 
     let previous:Vector2 = subtractVector2(mousePos, delta);
+
+    mousePos.x /= scale
+    mousePos.y /= scale
+    
+    previous.x /= scale;
+    previous.y /= scale;
 
     toolMove(previous, mousePos);
 
@@ -186,13 +198,54 @@ function toolMove(previous:Vector2, current:Vector2){
     switch (activeTool){
         case "pencil":
             if (buttonsDown[0]){
-                let obj = {id: 507, x:current.x / scale, y:current.y / scale, rotation: 0, scale: 1} as IObject;
 
-                console.log("added object");
-                console.log(obj);
+                if (pointDist(lastPencilPos!, current) >= unitSize * scale){
 
-                layers[currentLayer].push(obj);
+
+                    let angle = -pointAngle(current, lastPencilPos!);
+                    let nextPoint:Vector2 = {x:-(unitSize*scale)/2 * Math.cos(angle), y:-(unitSize*scale)/2 * -Math.sin(angle)};
+                    let endPoint:Vector2 = {x:-(unitSize*scale) * Math.cos(angle), y:-(unitSize*scale) * -Math.sin(angle)};
+
+
+                    nextPoint.x += lastPencilPos!.x;
+                    nextPoint.y += lastPencilPos!.y;
+
+                    endPoint.x += lastPencilPos!.x
+                    endPoint.y += lastPencilPos!.y
+
+                    addObject(507, nextPoint.x, nextPoint.y, toDegrees(angle), 1);
+
+                    
+                    lastPencilPos = endPoint;
+                }
+
             }
+            break;
+        default:
+            return;
+    }
+
+    draw();
+}
+
+function toolStart(current:Vector2){
+    switch (activeTool){
+        case "pencil":
+            if (buttonsDown[0]){
+                lastPencilPos = current;
+            }
+            break;
+        default:
+            return;
+    }
+
+    draw();
+}
+
+function toolEnd(current:Vector2){
+    switch (activeTool){
+        case "pencil":
+            lastPencilPos = undefined;
             break;
         default:
             return;
@@ -218,7 +271,9 @@ function changeLayer(ammount:number){
 
     layerDisplay!.innerText = currentLayer.toString();
 
-    genorateLayers(currentLayer);
+    genorateLayers(currentLayer + 1);
+
+    draw();
 }
 
 function drawEditorContents(){
@@ -226,7 +281,7 @@ function drawEditorContents(){
         if (i == currentLayer)
             continue;
         
-        drawLayer(i, 0.8);
+        drawLayer(i, 0.5);
     }
 
     drawLayer(currentLayer, 1);
@@ -281,4 +336,18 @@ function mouseToWorldCoords(x:number, y:number):Vector2{
 
 function subtractVector2(a:Vector2, b:Vector2):Vector2{
     return {x:a.x - b.x, y:a.y - b.y} as Vector2;
+}
+
+function addObject(id:number, x: number, y: number, rotation: number, scale: number){
+    let obj = {id:id, x:x, y:y, rotation:rotation, scale:scale}
+    
+    layers[currentLayer].push(obj);
+}
+
+function pointDist(p1:Vector2, p2:Vector2):number{
+    return Math.sqrt(Math.pow(p2.x-p1.x, 2)+Math.pow(p2.y-p1.y, 2))
+}
+
+function pointAngle(p1:Vector2, p2:Vector2){
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x)
 }
