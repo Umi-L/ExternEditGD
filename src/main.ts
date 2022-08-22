@@ -199,7 +199,7 @@ function toolMove(previous:Vector2, current:Vector2){
         case "pencil":
             if (buttonsDown[0]){
 
-                if (pointDist(lastPencilPos!, current) >= unitSize * scale){
+                while ((pointDist(lastPencilPos!, current) >= unitSize * scale)){
 
 
                     let angle = -pointAngle(current, lastPencilPos!);
