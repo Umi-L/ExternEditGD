@@ -96,12 +96,6 @@ canvas.onmousemove = (e) => {
 
     let previous:Vector2 = subtractVector2(mousePos, delta);
 
-    mousePos.x /= scale
-    mousePos.y /= scale
-    
-    previous.x /= scale;
-    previous.y /= scale;
-
     toolMove(previous, mousePos);
 
     e.preventDefault();
@@ -199,8 +193,8 @@ function toolMove(previous:Vector2, current:Vector2){
         case "pencil":
             if (buttonsDown[0]){
 
+                //possible crash if bugs.
                 while ((pointDist(lastPencilPos!, current) >= unitSize * scale)){
-
 
                     let angle = -pointAngle(current, lastPencilPos!);
                     let nextPoint:Vector2 = {x:-(unitSize*scale)/2 * Math.cos(angle), y:-(unitSize*scale)/2 * -Math.sin(angle)};
@@ -331,7 +325,7 @@ function toDegrees (angle:number):number {
 }
 
 function mouseToWorldCoords(x:number, y:number):Vector2{
-    return {x:x-cameraPosition.x, y:y - cameraPosition.y} as Vector2;
+    return {x:(x-cameraPosition.x)/scale, y:(y - cameraPosition.y)/scale} as Vector2;
 }
 
 function subtractVector2(a:Vector2, b:Vector2):Vector2{
