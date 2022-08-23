@@ -1,58 +1,71 @@
+<script setup lang="ts">
+    import ColourSelector from "./ColourSelector.vue";
+</script>
+
+
 <template>
-    <div id="sidebar-container">
-        <div id="sidebar">
-            <input type="image" src="./src/assets/line-stroke.png" class="button" id="pencil"/> 
+    <div id="sidebar">
+
+        <ColourSelector></ColourSelector>
+
+        <div id="layer-selector">
+            <input type="image" src="./src/assets/extern-arrow.png" class="arrow" id="left-layer"/> 
+            <h1 id="layer-display">0</h1>
+            <input type="image" src="./src/assets/extern-arrow.png" class="arrow" id="right-layer"/> 
         </div>
     </div>
 </template>
 
 <style>
-    #sidebar-container{
-        position: absolute;
-
-        width: 100px;
-        height: 100%;
-        display: flex;
-        
-        justify-content: center;
-        align-items: center;
-    }
     #sidebar{
+        position: fixed;
+        right: -170px;
+
+        height: 100%;
+        width: 200px;
+
         background-color: rgba(43, 43, 43, 0.8);
-
-        outline-color: rgba(81, 81, 81, 0.9);
-        outline-width: 2px;
-        outline-style: solid;
-
-        height: 80%;
-        width: 100%;
+        outline: rgba(81, 81, 81, 0.9) 2px solid;
 
         display: flex;
+        flex-direction: column;
 
-        border-radius: 0px 10px 10px 0px;
-        transform: translate(-80px, 0px);
         transition: transform 0.2s;
 
-
-        padding: 5px;
-
-        flex-direction: column;
-        justify-content: space-between;
-        flex-wrap: wrap;
     }
 
     #sidebar:hover{
-        transform: translate(0px, 0px);
+        transform: translate(-170px, 0px);
     }
 
-    .button{
+    #layer-selector{
+        position: relative;
+        bottom: 0%;
+
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 10px;
+    }
+
+    #right-layer{
+        transform: rotate(180deg);
+    }
+
+    .arrow{
         width: 40px;
         height: 40px;
 
-        border-radius: 2px;
+        transition-duration: 0.2s;
+    }
 
-        background-color: rgb(55, 55, 55);
-        
-        outline: 1px rgb(60, 60, 60) solid;
+    #left-layer:hover{
+        transform: translate(-2px, 0);
+    }
+
+    #right-layer:hover{
+        transform: translate(2px, 0) rotate(180deg);
     }
 </style>
