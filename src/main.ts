@@ -30,7 +30,8 @@ const ctx = canvas.getContext('2d')!;
 
 const layerDisplay = document.getElementById("layer-display");
 
-let layers:Array<Array<IObject>> = [[]];
+//layers:layer:strokes:objects
+let layers:Array<Array<Array<IObject>>> = [[]];
 let currentLayer:number = 0;
 
 let cameraPosition:Vector2 = {x:100, y:100};
@@ -42,6 +43,8 @@ let scale = 1;
 let activeTool:undefined|string;
 
 let lastPencilPos:Vector2|undefined;
+
+let currentStroke:Array<IObject> = [];
 
 if (ctx == null)
     throw new Error("CTX is not defined");
@@ -116,6 +119,14 @@ document.onwheel = (e) => {
     draw();
 }
 
+document.onkeydown = (e) => {
+    if (e.key === "z" && e.ctrlKey){
+        undo();
+
+        draw();
+    }
+}
+
 //register buttons
 document.getElementById("pencil")!.onclick = () => {
     selectTool("pencil");
@@ -157,6 +168,8 @@ function draw(){
     drawGrid(scale);
 
     drawEditorContents();
+
+    drawStroke(currentStroke);
 }
 
 function clearCanvas(){
@@ -194,12 +207,11 @@ function toolMove(previous:Vector2, current:Vector2){
             if (buttonsDown[0]){
 
                 //possible crash if bugs.
-                while ((pointDist(lastPencilPos!, current) >= unitSize * scale)){
+                while ((pointDist(lastPencilPos!, current) >= unitSize)){
 
                     let angle = -pointAngle(current, lastPencilPos!);
-                    let nextPoint:Vector2 = {x:-(unitSize*scale)/2 * Math.cos(angle), y:-(unitSize*scale)/2 * -Math.sin(angle)};
-                    let endPoint:Vector2 = {x:-(unitSize*scale) * Math.cos(angle), y:-(unitSize*scale) * -Math.sin(angle)};
-
+                    let nextPoint:Vector2 = {x:-(unitSize)/2 * Math.cos(angle), y:-(unitSize)/2 * -Math.sin(angle)};
+                    let endPoint:Vector2 = {x:-(unitSize) * Math.cos(angle), y:-(unitSize) * -Math.sin(angle)};
 
                     nextPoint.x += lastPencilPos!.x;
                     nextPoint.y += lastPencilPos!.y;
@@ -207,8 +219,9 @@ function toolMove(previous:Vector2, current:Vector2){
                     endPoint.x += lastPencilPos!.x
                     endPoint.y += lastPencilPos!.y
 
-                    addObject(507, nextPoint.x, nextPoint.y, toDegrees(angle), 1);
+                    
 
+                    addObjectToStroke(currentStroke, 507, nextPoint.x, nextPoint.y, toDegrees(angle), 1);
                     
                     lastPencilPos = endPoint;
                 }
@@ -239,6 +252,11 @@ function toolStart(current:Vector2){
 function toolEnd(current:Vector2){
     switch (activeTool){
         case "pencil":
+            addStroke(currentStroke);
+            currentStroke = newStroke();
+            
+            console.log(layers);
+
             lastPencilPos = undefined;
             break;
         default:
@@ -289,11 +307,9 @@ function drawLayer(layerNum:number, opacity:number){
 
     for (let j = 0; j < layer.length; j++){
 
-        let object = layer[j];
+        let stroke = layer[j];
 
-        if (object.id == 507){
-            drawLineSegment({x:object.x, y:object.y} as Vector2, object.rotation);
-        }
+        drawStroke(stroke);
     }
 }
 
@@ -332,10 +348,21 @@ function subtractVector2(a:Vector2, b:Vector2):Vector2{
     return {x:a.x - b.x, y:a.y - b.y} as Vector2;
 }
 
-function addObject(id:number, x: number, y: number, rotation: number, scale: number){
+function addObjectToStroke(stroke:Array<IObject>,id:number, x: number, y: number, rotation: number, scale: number){
     let obj = {id:id, x:x, y:y, rotation:rotation, scale:scale}
     
-    layers[currentLayer].push(obj);
+    stroke.push(obj);
+}
+
+function newStroke():Array<IObject>{
+    return [];
+}
+
+function addStroke(stroke:Array<IObject>){
+    if (stroke.length == 0)
+        return;
+
+    layers[currentLayer].push(stroke);
 }
 
 function pointDist(p1:Vector2, p2:Vector2):number{
@@ -344,4 +371,23 @@ function pointDist(p1:Vector2, p2:Vector2):number{
 
 function pointAngle(p1:Vector2, p2:Vector2){
     return Math.atan2(p2.y - p1.y, p2.x - p1.x)
+}
+
+function undo(){
+    if (currentStroke.length > 0){
+        currentStroke = newStroke();
+        return;
+    }
+
+    layers[currentLayer].pop();
+}
+
+function drawStroke(stroke:Array<IObject>){
+    for (let k = 0; k < stroke.length; k++){
+        let object = stroke[k];
+
+        if (object.id == 507){
+            drawLineSegment({x:object.x, y:object.y} as Vector2, object.rotation);
+        }
+    }
 }
