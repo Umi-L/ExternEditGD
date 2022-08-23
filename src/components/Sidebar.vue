@@ -18,11 +18,13 @@
 
 <style>
     #sidebar{
+        padding-top: 25px;
+
         position: fixed;
-        right: -170px;
+        right: 0px;/* -200px; */
 
         height: 100%;
-        width: 200px;
+        width: 250px;
 
         background-color: rgba(43, 43, 43, 0.8);
         outline: rgba(81, 81, 81, 0.9) 2px solid;
@@ -31,11 +33,11 @@
         flex-direction: column;
 
         transition: transform 0.2s;
-
+        
     }
 
     #sidebar:hover{
-        transform: translate(-170px, 0px);
+        /* transform: translate(-200px, 0px); */
     }
 
     #layer-selector{
