@@ -10,9 +10,9 @@
     #toolbar-container{
         position: absolute;
 
-        left: -80px;
+        left: -40px;
 
-        width: 100px;
+        width: 50px;
         height: 100%;
         display: flex;
         
@@ -43,7 +43,7 @@
     }
 
     #toolbar:hover{
-        transform: translate(80px, 0px);
+        transform: translate(40px, 0px);
     }
 
     .button{

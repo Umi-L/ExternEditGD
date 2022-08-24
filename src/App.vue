@@ -3,7 +3,6 @@
 // Check out https://vuejs.org/api/sfc-script-setup.html#script-setup
 import Body from './components/Body.vue';
 import Topbar from './components/Topbar.vue';
-import LayerController from './components/LayerController.vue';
 import Toolbar from './components/Toolbar.vue';
 import Sidebar from './components/Sidebar.vue';
 </script>

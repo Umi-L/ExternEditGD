@@ -71,15 +71,18 @@ draw();
 window.addEventListener('resize', resize)
 
 canvas.onmousedown = (e) => {
-    buttonsDown[e.button] = true;
     e.preventDefault();
+
+    buttonsDown[e.button] = true;
 
     toolStart(mouseToWorldCoords(e.clientX, e.clientY));
 }
 
 canvas.onmouseup = (e) => {
-    buttonsDown[e.button] = false;
     e.preventDefault();
+
+
+    buttonsDown[e.button] = false;
 
     toolEnd(mouseToWorldCoords(e.clientX, e.clientY));
 }
@@ -89,6 +92,8 @@ window.onmouseout = (e) => {
 }
 
 canvas.onmousemove = (e) => {
+    e.preventDefault();
+
     if (buttonsDown[1]){
         cameraPosition.x += e.movementX;
         cameraPosition.y += e.movementY;
@@ -131,6 +136,11 @@ document.onkeydown = (e) => {
         draw();
     }
 }
+
+//Hacky fix for formatting in the colour picker. Better solution is to fork the lib but too lazy.
+document.querySelector(".vacp-copy-button")!.innerHTML = "Copy";
+
+
 
 //register buttons
 document.getElementById("pencil")!.onclick = () => {
