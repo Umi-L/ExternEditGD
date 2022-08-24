@@ -2,6 +2,7 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
+import {Utils} from "./utils"
 
 createApp(App)
     .use(vuetify)
@@ -11,6 +12,7 @@ interface Vector2{
     x:number,
     y:number,
 }
+
 interface IObject{
     id: number,
     x: number,
@@ -100,7 +102,7 @@ canvas.onmousemove = (e) => {
 
     let delta:Vector2 = mouseToWorldCoords(e.movementX, e.movementY);
 
-    let previous:Vector2 = subtractVector2(mousePos, delta);
+    let previous:Vector2 = Utils.subtractVector2(mousePos, delta);
 
     toolMove(previous, mousePos);
 
@@ -210,9 +212,9 @@ function toolMove(previous:Vector2, current:Vector2){
             if (buttonsDown[0]){
 
                 //possible crash if bugs.
-                while ((pointDist(lastPencilPos!, current) >= unitSize)){
+                while ((Utils.pointDist(lastPencilPos!, current) >= unitSize)){
 
-                    let angle = -pointAngle(current, lastPencilPos!);
+                    let angle = -Utils.pointAngle(current, lastPencilPos!);
                     let nextPoint:Vector2 = {x:-(unitSize)/2 * Math.cos(angle), y:-(unitSize)/2 * -Math.sin(angle)};
                     let endPoint:Vector2 = {x:-(unitSize) * Math.cos(angle), y:-(unitSize) * -Math.sin(angle)};
 
@@ -224,7 +226,7 @@ function toolMove(previous:Vector2, current:Vector2){
 
                     
 
-                    addObjectToStroke(currentStroke, 507, nextPoint.x, nextPoint.y, toDegrees(angle), 1);
+                    addObjectToStroke(currentStroke, 507, nextPoint.x, nextPoint.y, Utils.toDegrees(angle), 1);
                     
                     lastPencilPos = endPoint;
                 }
@@ -326,29 +328,13 @@ function drawLineSegment(pos:Vector2, rotation:number){
 
     let dist = (unitSize * scale) / 2
 
-    let p1:Vector2 = {x:dist * Math.cos(toRadians(rotation)), y:dist * -Math.sin(toRadians(rotation))}
-    let p2:Vector2 = {x:-dist * Math.cos(toRadians(rotation)), y:-dist * -Math.sin(toRadians(rotation))}
+    let p1:Vector2 = {x:dist * Math.cos(Utils.toRadians(rotation)), y:dist * -Math.sin(Utils.toRadians(rotation))}
+    let p2:Vector2 = {x:-dist * Math.cos(Utils.toRadians(rotation)), y:-dist * -Math.sin(Utils.toRadians(rotation))}
 
     ctx.beginPath();
     ctx.moveTo(p1.x + cameraPosition.x + pos.x, p1.y + cameraPosition.y + pos.y);
     ctx.lineTo(p2.x + cameraPosition.x + pos.x, p2.y + cameraPosition.y + pos.y);
     ctx.stroke();
-}
-
-function toRadians (angle:number):number {
-    return angle * (Math.PI / 180);
-}
-
-function toDegrees (angle:number):number {
-    return angle * (180 / Math.PI);
-}
-
-function mouseToWorldCoords(x:number, y:number):Vector2{
-    return {x:(x-cameraPosition.x)/scale, y:(y - cameraPosition.y)/scale} as Vector2;
-}
-
-function subtractVector2(a:Vector2, b:Vector2):Vector2{
-    return {x:a.x - b.x, y:a.y - b.y} as Vector2;
 }
 
 function addObjectToStroke(stroke:Array<IObject>,id:number, x: number, y: number, rotation: number, scale: number){
@@ -368,14 +354,6 @@ function addStroke(stroke:Array<IObject>){
     layers[currentLayer].push(stroke);
 }
 
-function pointDist(p1:Vector2, p2:Vector2):number{
-    return Math.sqrt(Math.pow(p2.x-p1.x, 2)+Math.pow(p2.y-p1.y, 2))
-}
-
-function pointAngle(p1:Vector2, p2:Vector2){
-    return Math.atan2(p2.y - p1.y, p2.x - p1.x)
-}
-
 function undo(){
     if (currentStroke.length > 0){
         currentStroke = newStroke();
@@ -393,4 +371,8 @@ function drawStroke(stroke:Array<IObject>){
             drawLineSegment({x:object.x, y:object.y} as Vector2, object.rotation);
         }
     }
+}
+
+function mouseToWorldCoords(x:number, y:number):Vector2{
+    return {x:(x-cameraPosition.x)/scale, y:(y - cameraPosition.y)/scale} as Vector2;
 }
