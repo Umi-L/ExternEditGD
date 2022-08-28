@@ -2,7 +2,9 @@ import { createApp } from 'vue'
 import './style.css'
 import App from './App.vue'
 import vuetify from './plugins/vuetify'
-import {Utils} from "./utils"
+import {Utils} from './utils'
+
+import { invoke } from '@tauri-apps/api/tauri'
 
 createApp(App)
     .use(vuetify)
@@ -55,6 +57,9 @@ if (ctx == null)
     throw new Error("CTX is not defined");
 
 
+invoke("create_color", {r:255, g:255, b:255, a:255}).then((color:any) => {
+    console.log(color);
+})
 
 const resize = () => {
     canvas.width = window.innerWidth;

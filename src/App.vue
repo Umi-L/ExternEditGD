@@ -13,6 +13,6 @@ import Sidebar from './components/Sidebar.vue';
   <Topbar></Topbar>
   <Body></Body>
 </template>
-
+  
 <style>
 </style>

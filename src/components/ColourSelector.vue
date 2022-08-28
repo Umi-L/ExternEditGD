@@ -3,18 +3,17 @@
 </script>
 
 <template>
-    <ColorPicker
-    :color="{
-        h: 0.8083333333333333,
-        s: 0.8823529411764706,
-        l: 0.2361111111111111,
-        a: 0.8
-    }" class="sr-only"
-    ></ColorPicker>
+    
 
     <div id="colour-picker-container">
-        <Sketch></Sketch>
-        <!-- <v-color-picker width="230" light="false" id="colour-picker" value="rgba(255,255,255,1);"></v-color-picker> -->
+        <ColorPicker @color-change="updateColor"
+        :color="{
+            r: 1,
+            g: 1,
+            b: 1,
+            a: 1
+        }" class="sr-only"
+        ></ColorPicker>
     </div>
 </template>
 
@@ -56,6 +55,22 @@
     }
 
     .vacp-copy-button:focus{
-        outline: none;
+        outline: none !important;
+    }
+
+    .vacp-color-input:focus{
+        outline: none !important;
+    }
+
+    .vacp-format-switch-button:focus{
+        outline: none !important;
+    }
+
+    .color-picker-hue-slider:focus{
+        outline: none !important;
+    }
+    
+    .vacp-color-space-thumb:focus{
+        outline: none !important;
     }
 </style>
