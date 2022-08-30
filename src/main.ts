@@ -56,10 +56,13 @@ let currentStroke:Array<IObject> = [];
 if (ctx == null)
     throw new Error("CTX is not defined");
 
+invoke("genorate_layers", {ammount:1});
 
-invoke("create_color", {r:255, g:255, b:255, a:255}).then((color:any) => {
-    console.log(color);
-})
+invoke("create_object", {id:0, x:0, y:0, rotation:0, scale:1}).then((object:any) => {
+    invoke("add_object_to_current_stroke", {object:object}).then(() => {
+        invoke("add_current_stroke");
+    });
+});
 
 const resize = () => {
     canvas.width = window.innerWidth;
@@ -287,12 +290,7 @@ function toolEnd(current:Vector2){
 }
 
 function genorateLayers(ammount:number){
-    if (layers.length >= ammount)
-        return;
-    
-    for (let i = 0; i < ammount - layers.length; i++){
-        layers.push([]);
-    }
+    invoke("genorate_layers", {ammount:ammount});
 }
 
 function changeLayer(ammount:number){
