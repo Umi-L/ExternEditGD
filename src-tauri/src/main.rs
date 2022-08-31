@@ -10,9 +10,9 @@ use tauri::State;
 #[derive(Serialize, Deserialize, Clone, Debug)]
 struct Object{
   id: i32,
-  x: i32,
-  y: i32,
-  rotation: i32,
+  x: f32,
+  y: f32,
+  rotation: f32,
   scale: i32,
   color: Color,
 }
@@ -22,7 +22,7 @@ struct Color{
   r: i32,
   g: i32,
   b: i32,
-  a: i32
+  a: f32
 }
 
 
@@ -42,19 +42,17 @@ fn add_current_stroke(layer_mutex: State<CurrentLayer>, stroke_mutex: State<Curr
   // push duplicated layer to layers
   layers[*current_layer].push(stroke.to_vec());
 
-  println!("{:?}", layers);
+  //println!("{:?}", layers);
 }
 
 #[tauri::command]
 fn add_object_to_current_stroke(object:Object, stroke_mutex:State<CurrentStroke>) {
   let mut stroke = stroke_mutex.0.lock().unwrap();
   stroke.push(object);
-
-  println!("{:?}", stroke);
 }
 
 #[tauri::command]
-fn create_object(id:i32, x:i32, y:i32, rotation:i32, scale:i32, current_color_mutex:State<CurrentColor>) -> Object {
+fn create_object(id:i32, x:f32, y:f32, rotation:f32, scale:i32, current_color_mutex:State<CurrentColor>) -> Object {
 
   let current_color = current_color_mutex.0.lock().unwrap();
 
@@ -69,7 +67,7 @@ fn create_object(id:i32, x:i32, y:i32, rotation:i32, scale:i32, current_color_mu
 }
 
 #[tauri::command]
-fn create_color(r:i32, g:i32, b:i32, a:i32) -> Color {
+fn create_color(r:i32, g:i32, b:i32, a:f32) -> Color {
   return Color{
     r: r,
     g: g,
@@ -91,6 +89,20 @@ fn genorate_layers(ammount:usize, layers_mutex:State<Layers>){
   }
 }
 
+//getters
+#[tauri::command]
+fn get_layers(layers_mutex:State<Layers>) -> Vec<Vec<Vec<Object>>> {
+  let layers = layers_mutex.0.lock().unwrap();
+  return layers.to_vec();
+}
+
+
+#[tauri::command]
+fn get_current_layer(layer_mutex:State<CurrentLayer>) -> usize {
+  let layer = layer_mutex.0.lock().unwrap();
+  return *layer;
+}
+
 fn main() {
 
   tauri::Builder::default()
@@ -105,7 +117,9 @@ fn main() {
       create_object,
       add_current_stroke,
       add_object_to_current_stroke,
-      genorate_layers
+      genorate_layers,
+      get_layers,
+      get_current_layer
       ])
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

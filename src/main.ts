@@ -58,12 +58,6 @@ if (ctx == null)
 
 invoke("genorate_layers", {ammount:1});
 
-invoke("create_object", {id:0, x:0, y:0, rotation:0, scale:1}).then((object:any) => {
-    invoke("add_object_to_current_stroke", {object:object}).then(() => {
-        invoke("add_current_stroke");
-    });
-});
-
 const resize = () => {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
@@ -242,9 +236,9 @@ function toolMove(previous:Vector2, current:Vector2){
                     endPoint.x += lastPencilPos!.x
                     endPoint.y += lastPencilPos!.y
 
-                    
-
-                    addObjectToStroke(currentStroke, 507, nextPoint.x, nextPoint.y, Utils.toDegrees(angle), 1);
+                    invoke("create_object", {id:507, x:nextPoint.x, y:nextPoint.y, rotation:Utils.toDegrees(angle), scale:1}).then((object:any) => {
+                        invoke("add_object_to_current_stroke", {object:object});
+                    });
                     
                     lastPencilPos = endPoint;
                 }
@@ -275,11 +269,10 @@ function toolStart(current:Vector2){
 function toolEnd(current:Vector2){
     switch (activeTool){
         case "pencil":
-            addStroke(currentStroke);
+            invoke("add_current_stroke");
+
             currentStroke = newStroke();
             
-            console.log(layers);
-
             lastPencilPos = undefined;
             break;
         default:
@@ -307,19 +300,31 @@ function changeLayer(ammount:number){
 }
 
 function drawEditorContents(){
-    for (let i = 0; i < layers.length; i++){
-        if (i == currentLayer)
-            continue;
-        
-        drawLayer(i, 0.5);
-    }
 
-    drawLayer(currentLayer, 1);
+    let start_time = Date.now();
+
+    invoke("get_layers").then((layers:any) => {
+
+        invoke("get_current_layer").then((current_layer:any) => {
+
+            for (let i = 0; i < layers.length; i++){
+                if (i == current_layer)
+                    continue;
+                
+                drawLayer(layers[i], 0.5);
+            }
+        
+            drawLayer(layers[current_layer], 1);
+
+
+            let end_time = Date.now();
+
+            console.log(end_time - start_time);
+        });
+    });
 }
 
-function drawLayer(layerNum:number, opacity:number){
-
-    let layer = layers[layerNum];
+function drawLayer(layer:Array<Array<IObject>>, opacity:number){
 
     ctx.globalAlpha = opacity;
 
